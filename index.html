@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DALSUT UP3 PAREPARE</title>
+  <!-- Menggunakan Icon Font Awesome untuk tampilan menu -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #f4f6f9;
+    }
+
+    /* ================= LOGIN PAGE STYLES ================= */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease, visibility 0.4s;
+    }
+
+    .login-box {
+      background: #ffffff;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+    }
+
+    .login-header {
+      margin-bottom: 25px;
+    }
+
+    .login-header h2 {
+      color: #0f172a;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .login-header p {
+      color: #0284c7;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      color: #475569;
+      font-weight: 600;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: #38bdf8;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #0284c7;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 10px;
+    }
+
+    .login-btn:hover {
+      background-color: #0369a1;
+    }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* Menyembunyikan dashboard sebelum login */
+    .dashboard-container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      visibility: hidden;
+    }
+
+    .dashboard-container.active {
+      visibility: visible;
+    }
+
+    /* ================= MAIN DASHBOARD STYLES ================= */
+    .sidebar {
+      width: 250px;
+      background-color: #1e293b;
+      color: #fff;
+      height: 100%;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #334155;
+    }
+
+    .brand-title {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.3s;
+    }
+
+    .brand-title span:first-child {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .brand-title span:last-child {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #38bdf8;
+    }
+
+    .sidebar.collapsed .brand-title {
+      opacity: 0;
+      width: 0;
+      display: none;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .menu-list {
+      list-style: none;
+      padding: 10px 0;
+      flex-grow: 1;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 15px 20px;
+      color: #94a3b8;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .menu-item:hover, .menu-item.active {
+      background-color: #334155;
+      color: #38bdf8;
+      border-left: 4px solid #38bdf8;
+    }
+
+    .menu-item i {
+      font-size: 1.2rem;
+      min-width: 30px;
+    }
+
+    .menu-item span {
+      margin-left: 10px;
+      transition: opacity 0.3s;
+    }
+
+    .sidebar.collapsed .menu-item span {
+      opacity: 0;
+      display: none;
+    }
+
+    /* Logout Menu Style */
+    .logout-item {
+      border-top: 1px solid #334155;
+      color: #f87171;
+    }
+
+    .logout-item:hover {
+      background-color: #451a1a;
+      color: #ef4444;
+      border-left: 4px solid #ef4444;
+    }
+
+    .main-content {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .content-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LANDING PAGE / LOGIN MODAL -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <div class="login-header">
+        <h2>DALSUT</h2>
+        <p>UP3 PAREPARE</p>
+      </div>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Masukkan username" required autocomplete="off">
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Masukkan password" required>
+        </div>
+        <button type="submit" class="login-btn">Masuk</button>
+        <p class="error-msg" id="errorMsg">Username atau password salah!</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- DASHBOARD MAIN CONTAINER -->
+  <div class="dashboard-container" id="dashboardContainer">
+    
+    <!-- SIDEBAR NAVIGATION -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h3 class="brand-title">
+          <span>DALSUT</span>
+          <span>UP3 PAREPARE</span>
+        </h3>
+        <button class="toggle-btn" id="toggleBtn" title="Buka/Tutup Sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+
+      <ul class="menu-list">
+        <li>
+          <a class="menu-item active" onclick="loadPage('https://dalsutup3pare-dotcom.github.io/kwhp2tl/', this)">
+            <i class="fa-solid fa-gauge"></i>
+            <span>DASHBOARD KWHP2TL</span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" onclick="loadPage('https://dalsutup3pare-dotcom.github.io/report4dx/', this)">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Report4DX</span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" onclick="loadPage('https://dalsutup3pare-dotcom.github.io/p2tl-ba/', this)">
+            <i class="fa-solid fa-file-contract"></i>
+            <span>GENERATE NO BA P2TL</span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" onclick="loadPage('about:blank', this)">
+            <i class="fa-solid fa-folder"></i>
+            <span>(coming soon)</span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" onclick="loadPage('about:blank', this)">
+            <i class="fa-solid fa-gear"></i>
+            <span>(coming soon)</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Tombol Logout -->
+      <a class="menu-item logout-item" onclick="handleLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Keluar</span>
+      </a>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-content">
+      <iframe id="mainFrame" class="content-frame" src="https://dalsutup3pare-dotcom.github.io/kwhp2tl/"></iframe>
+    </div>
+
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const mainFrame = document.getElementById('mainFrame');
+    const loginOverlay = document.getElementById('loginOverlay');
+    const dashboardContainer = document.getElementById('dashboardContainer');
+    const errorMsg = document.getElementById('errorMsg');
+
+    // KREDENSIAL LOGIN (Ganti sesuai kebutuhan)
+    const USER_BENAR = "admin";
+    const PASS_BENAR = "admin123";
+
+    // Fitur Handle Login
+    function handleLogin(event) {
+      event.preventDefault();
+      const inputUser = document.getElementById('username').value;
+      const inputPass = document.getElementById('password').value;
+
+      if (inputUser === USER_BENAR && inputPass === PASS_BENAR) {
+        // Sembunyikan Landing Page Login & Tampilkan Dashboard
+        loginOverlay.style.opacity = '0';
+        setTimeout(() => {
+          loginOverlay.style.display = 'none';
+          dashboardContainer.classList.add('active');
+        }, 400);
+        errorMsg.style.display = 'none';
+      } else {
+        errorMsg.style.display = 'block';
+      }
+    }
+
+    // Fitur Handle Logout
+    function handleLogout() {
+      dashboardContainer.classList.remove('active');
+      loginOverlay.style.display = 'flex';
+      setTimeout(() => {
+        loginOverlay.style.opacity = '1';
+      }, 50);
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+    }
+
+    // Fitur Toggle Open/Close Sidebar
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+    });
+
+    // Fungsi mengganti URL iframe
+    function loadPage(url, element) {
+      mainFrame.src = url;
+      const items = document.querySelectorAll('.menu-item');
+      items.forEach(item => item.classList.remove('active'));
+      element.classList.add('active');
+    }
+  </script>
+
+</body>
+</html>
