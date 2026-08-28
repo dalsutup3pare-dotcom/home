@@ -339,7 +339,7 @@
 
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
+<!-- JAVASCRIPT LOGIC -->
   <script>
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('toggleBtn');
@@ -348,31 +348,65 @@
     const dashboardContainer = document.getElementById('dashboardContainer');
     const errorMsg = document.getElementById('errorMsg');
 
-    // KREDENSIAL LOGIN (Ganti sesuai kebutuhan)
-    const USER_BENAR = "admin";
-    const PASS_BENAR = "admin123";
+    // URL Web App dari Google Apps Script Anda (Ganti dengan URL milik Anda)
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz0moOroPebuptvj12hjDT_iPsUy5TPVJl58yIuoYFA2VJvGBmX4v9KtykVCipixN2_/exec";
 
-    // Fitur Handle Login
-    function handleLogin(event) {
+    // CEK STATUS SAAT HALAMAN DIMUAT / DI-REFRESH
+    window.addEventListener('DOMContentLoaded', () => {
+      const isLogged = sessionStorage.getItem('isLoggedIn');
+      if (isLogged === 'true') {
+        // Jika sebelumnya sudah login, langsung buka dashboard tanpa tampilkan login
+        loginOverlay.style.display = 'none';
+        dashboardContainer.classList.add('active');
+      }
+    });
+
+    // Fitur Handle Login Terhubung ke Spreadsheet via Apps Script
+    async function handleLogin(event) {
       event.preventDefault();
       const inputUser = document.getElementById('username').value;
       const inputPass = document.getElementById('password').value;
+      const loginBtn = document.querySelector('.login-btn');
 
-      if (inputUser === USER_BENAR && inputPass === PASS_BENAR) {
-        // Sembunyikan Landing Page Login & Tampilkan Dashboard
-        loginOverlay.style.opacity = '0';
-        setTimeout(() => {
-          loginOverlay.style.display = 'none';
-          dashboardContainer.classList.add('active');
-        }, 400);
-        errorMsg.style.display = 'none';
-      } else {
-        errorMsg.style.display = 'block';
+      loginBtn.innerText = "Memeriksa...";
+      loginBtn.disabled = true;
+
+      try {
+        const response = await fetch(WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify({ username: inputUser, password: inputPass })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // SIMPAN STATUS LOGIN KE SESSION BROWSER
+          sessionStorage.setItem('isLoggedIn', 'true');
+
+          // Sembunyikan Landing Page Login & Tampilkan Dashboard
+          loginOverlay.style.opacity = '0';
+          setTimeout(() => {
+            loginOverlay.style.display = 'none';
+            dashboardContainer.classList.add('active');
+          }, 400);
+          errorMsg.style.display = 'none';
+        } else {
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        console.error("Gagal terhubung ke server:", err);
+        alert("Terjadi kesalahan koneksi saat memeriksa data login.");
+      } finally {
+        loginBtn.innerText = "Masuk";
+        loginBtn.disabled = false;
       }
     }
 
     // Fitur Handle Logout
     function handleLogout() {
+      // HAPUS STATUS LOGIN SAAT LOGOUT
+      sessionStorage.removeItem('isLoggedIn');
+
       dashboardContainer.classList.remove('active');
       loginOverlay.style.display = 'flex';
       setTimeout(() => {
@@ -395,6 +429,5 @@
       element.classList.add('active');
     }
   </script>
-
 </body>
 </html>
