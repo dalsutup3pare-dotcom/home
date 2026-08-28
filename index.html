@@ -179,6 +179,50 @@
       display: none;
     }
 
+    /* Styling Info User yang Sedang Login */
+    .user-profile {
+      padding: 15px 20px;
+      background-color: #1e293b;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.3s;
+    }
+
+    .user-profile i {
+      color: #38bdf8;
+      font-size: 1.1rem;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .user-info span:first-child {
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .user-info span:last-child {
+      font-size: 0.9rem;
+      color: #ffffff;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed .user-profile {
+      opacity: 0;
+      display: none;
+    }
+
     .toggle-btn {
       background: none;
       border: none;
@@ -292,6 +336,15 @@
         </button>
       </div>
 
+      <!-- TAMPILAN USER YANG SEDANG LOGIN DI BAWAH NAVBAR/HEADER -->
+      <div class="user-profile" id="userProfileSection">
+        <i class="fa-solid fa-user-circle"></i>
+        <div class="user-info">
+          <span>Login sebagai:</span>
+          <span id="displayUsername">-</span>
+        </div>
+      </div>
+
       <ul class="menu-list">
         <li>
           <a class="menu-item active" onclick="loadPage('https://dalsutup3pare-dotcom.github.io/kwhp2tl/', this)">
@@ -339,7 +392,7 @@
 
   </div>
 
-<!-- JAVASCRIPT LOGIC -->
+  <!-- JAVASCRIPT LOGIC -->
   <script>
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('toggleBtn');
@@ -347,6 +400,7 @@
     const loginOverlay = document.getElementById('loginOverlay');
     const dashboardContainer = document.getElementById('dashboardContainer');
     const errorMsg = document.getElementById('errorMsg');
+    const displayUsername = document.getElementById('displayUsername');
 
     // URL Web App dari Google Apps Script Anda (Ganti dengan URL milik Anda)
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz0moOroPebuptvj12hjDT_iPsUy5TPVJl58yIuoYFA2VJvGBmX4v9KtykVCipixN2_/exec";
@@ -354,8 +408,10 @@
     // CEK STATUS SAAT HALAMAN DIMUAT / DI-REFRESH
     window.addEventListener('DOMContentLoaded', () => {
       const isLogged = sessionStorage.getItem('isLoggedIn');
-      if (isLogged === 'true') {
-        // Jika sebelumnya sudah login, langsung buka dashboard tanpa tampilkan login
+      const savedUser = sessionStorage.getItem('username');
+
+      if (isLogged === 'true' && savedUser) {
+        displayUsername.innerText = savedUser;
         loginOverlay.style.display = 'none';
         dashboardContainer.classList.add('active');
       }
@@ -380,8 +436,12 @@
         const result = await response.json();
 
         if (result.success) {
-          // SIMPAN STATUS LOGIN KE SESSION BROWSER
+          // SIMPAN STATUS & USERNAME KE SESSION BROWSER
           sessionStorage.setItem('isLoggedIn', 'true');
+          sessionStorage.setItem('username', inputUser);
+
+          // Tampilkan nama user di sidebar
+          displayUsername.innerText = inputUser;
 
           // Sembunyikan Landing Page Login & Tampilkan Dashboard
           loginOverlay.style.opacity = '0';
@@ -404,8 +464,9 @@
 
     // Fitur Handle Logout
     function handleLogout() {
-      // HAPUS STATUS LOGIN SAAT LOGOUT
+      // HAPUS SESSION LOGIN & USERNAME
       sessionStorage.removeItem('isLoggedIn');
+      sessionStorage.removeItem('username');
 
       dashboardContainer.classList.remove('active');
       loginOverlay.style.display = 'flex';
@@ -429,5 +490,6 @@
       element.classList.add('active');
     }
   </script>
+
 </body>
 </html>
