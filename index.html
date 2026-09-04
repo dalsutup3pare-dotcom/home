@@ -1,345 +1,495 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <base target="_top">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DALSUT UP3 PAREPARE</title>
+  <!-- Menggunakan Icon Font Awesome untuk tampilan menu -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    /* Styling untuk container peta utama */
-    .map-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 950px;
-      margin: 0 auto;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    .map-wrapper img {
+
+    body {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #f4f6f9;
+    }
+
+    /* ================= LOGIN PAGE STYLES ================= */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      height: auto;
+      height: 100%;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease, visibility 0.4s;
+    }
+
+    .login-box {
+      background: #ffffff;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+    }
+
+    .login-header {
+      margin-bottom: 25px;
+    }
+
+    .login-header h2 {
+      color: #0f172a;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .login-header p {
+      color: #0284c7;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .input-group label {
       display: block;
-      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      color: #475569;
+      font-weight: 600;
     }
 
-    /* Styling kartu melayang agar posisinya terkunci di sekitar peta */
-    .floating-card {
-      position: absolute;
-      width: 230px;
-      font-size: 11px;
-      z-index: 10;
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
     }
 
-    /* Efek transisi halus saat memuat data */
-    .loading-fade {
-      transition: opacity 0.2s ease-in-out;
+    .input-group input:focus {
+      border-color: #38bdf8;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #0284c7;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 10px;
+    }
+
+    .login-btn:hover {
+      background-color: #0369a1;
+    }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* Menyembunyikan dashboard sebelum login */
+    .dashboard-container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      visibility: hidden;
+    }
+
+    .dashboard-container.active {
+      visibility: visible;
+    }
+
+    /* ================= MAIN DASHBOARD STYLES ================= */
+    .sidebar {
+      width: 250px;
+      background-color: #1e293b;
+      color: #fff;
+      height: 100%;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #334155;
+    }
+
+    .brand-title {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.3s;
+    }
+
+    .brand-title span:first-child {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .brand-title span:last-child {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #38bdf8;
+    }
+
+    .sidebar.collapsed .brand-title {
+      opacity: 0;
+      width: 0;
+      display: none;
+    }
+
+    /* Styling Info User yang Sedang Login */
+    .user-profile {
+      padding: 15px 20px;
+      background-color: #1e293b;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.3s;
+    }
+
+    .user-profile i {
+      color: #38bdf8;
+      font-size: 1.1rem;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .user-info span:first-child {
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .user-info span:last-child {
+      font-size: 0.9rem;
+      color: #ffffff;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed .user-profile {
+      opacity: 0;
+      display: none;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .menu-list {
+      list-style: none;
+      padding: 10px 0;
+      flex-grow: 1;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 15px 20px;
+      color: #94a3b8;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .menu-item:hover, .menu-item.active {
+      background-color: #334155;
+      color: #38bdf8;
+      border-left: 4px solid #38bdf8;
+    }
+
+    .menu-item i {
+      font-size: 1.2rem;
+      min-width: 30px;
+    }
+
+    .menu-item span {
+      margin-left: 10px;
+      transition: opacity 0.3s;
+    }
+
+    .sidebar.collapsed .menu-item span {
+      opacity: 0;
+      display: none;
+    }
+
+    /* Logout Menu Style */
+    .logout-item {
+      border-top: 1px solid #334155;
+      color: #f87171;
+    }
+
+    .logout-item:hover {
+      background-color: #451a1a;
+      color: #ef4444;
+      border-left: 4px solid #ef4444;
+    }
+
+    .main-content {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .content-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 p-4">
-  <div class="max-w-7xl mx-auto relative">
-    
-<!-- OVERLAY LOADING SPINNER (Diubah dari absolute ke fixed agar tembus iframe) -->
-<div id="loadingOverlay" class="fixed inset-0 bg-slate-950/70 backdrop-blur-[2px] z-[99999] flex items-center justify-center hidden">
-  <div class="bg-slate-800 border border-slate-700 px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-3">
-    <svg class="animate-spin h-6 w-6 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-    <span class="text-sm font-semibold text-white tracking-wide">Memuat Data...</span>
+<body>
+
+  <!-- LANDING PAGE / LOGIN MODAL -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <div class="login-header">
+        <h2>DALSUT</h2>
+        <p>UP3 PAREPARE</p>
+      </div>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Masukkan username" required autocomplete="off">
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Masukkan password" required>
+        </div>
+        <button type="submit" class="login-btn">Masuk</button>
+        <p class="error-msg" id="errorMsg">Username atau password salah!</p>
+      </form>
+    </div>
   </div>
-</div>
 
-    <!-- HEADER & FILTER LENGKAP -->
-    <header class="flex flex-col md:flex-row justify-between items-center bg-slate-800 border border-slate-700 p-4 rounded-lg shadow-lg mb-4 gap-4">
-      <div class="flex items-center space-x-3">
-        <div class="flex items-center space-x-2 border-r border-slate-600 pr-4">
-          <span class="font-black text-xl tracking-wider text-blue-400">PLN</span>
-        </div>
-        <div>
-          <h1 class="font-bold text-base text-white">PETA SUSUT UP3 PAREPARE</h1>
-          <p class="text-xs text-slate-400">Monitoring Susut Distribusi</p>
+  <!-- DASHBOARD MAIN CONTAINER -->
+  <div class="dashboard-container" id="dashboardContainer">
+    
+    <!-- SIDEBAR NAVIGATION -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h3 class="brand-title">
+          <span>DALSUT</span>
+          <span>UP3 PAREPARE</span>
+        </h3>
+        <button class="toggle-btn" id="toggleBtn" title="Buka/Tutup Sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+
+      <!-- TAMPILAN USER YANG SEDANG LOGIN DI BAWAH NAVBAR/HEADER -->
+      <div class="user-profile" id="userProfileSection">
+        <i class="fa-solid fa-user-circle"></i>
+        <div class="user-info">
+          <span>Login sebagai:</span>
+          <span id="displayUsername">-</span>
         </div>
       </div>
 
-      <div class="flex flex-wrap gap-3 text-sm items-center">
-        <!-- FILTER KUM (BULANAN / KUMULATIF) -->
-        <div>
-          <label class="text-xs font-semibold mr-1 text-slate-300">TIPE:</label>
-          <select id="filterKum" class="border border-slate-600 p-1 rounded bg-slate-900 text-white text-xs font-medium focus:outline-none focus:border-blue-500" onchange="loadData()">
-            <option value="BULANAN">BULANAN</option>
-            <option value="KUMULATIF" selected>KUMULATIF</option>
-          </select>
-        </div>
+      <ul class="menu-list">
+        <li>
+          <a class="menu-item active" onclick="loadPage('https://dalsutup3pare-dotcom.github.io/kwhp2tl/', this)">
+            <i class="fa-solid fa-gauge"></i>
+            <span>DASHBOARD KWHP2TL</span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" onclick="loadPage('https://dalsutup3pare-dotcom.github.io/petasusut/', this)">
+            <i class="fa-solid fa-folder"></i>
+            <span>PETA SUSUT</span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" onclick="loadPage('https://dalsutup3pare-dotcom.github.io/report4dx/', this)">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Report4DX</span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" onclick="loadPage('https://dalsutup3pare-dotcom.github.io/p2tl-ba/', this)">
+            <i class="fa-solid fa-file-contract"></i>
+            <span>GENERATE NO BA P2TL</span>
+          </a>
+        </li>
+        <li>
+          <a class="menu-item" onclick="loadPage('about:blank', this)">
+            <i class="fa-solid fa-gear"></i>
+            <span>(coming soon)</span>
+          </a>
+        </li>
+      </ul>
 
-        <!-- FILTER BULAN -->
-        <div>
-          <label class="text-xs font-semibold mr-1 text-slate-300">BULAN:</label>
-          <select id="filterBulan" class="border border-slate-600 p-1 rounded bg-slate-900 text-white text-xs font-medium focus:outline-none focus:border-blue-500" onchange="loadData()">
-            <option value="01 JANUARI">01 JANUARI</option>
-            <option value="02 FEBRUARI">02 FEBRUARI</option>
-            <option value="03 MARET">03 MARET</option>
-            <option value="04 APRIL">04 APRIL</option>
-            <option value="05 MEI">05 MEI</option>
-            <option value="06 JUNI">06 JUNI</option>
-            <option value="07 JULI">07 JULI</option>
-            <option value="08 AGUSTUS">08 AGUSTUS</option>
-            <option value="09 SEPTEMBER">09 SEPTEMBER</option>
-            <option value="10 OKTOBER">10 OKTOBER</option>
-            <option value="11 NOVEMBER">11 NOVEMBER</option>
-            <option value="12 DESEMBER">12 DESEMBER</option>
-          </select>
-        </div>
-
-        <!-- FILTER TAHUN -->
-        <div>
-          <label class="text-xs font-semibold mr-1 text-slate-300">TAHUN:</label>
-          <select id="filterTahun" class="border border-slate-600 p-1 rounded bg-slate-900 text-white text-xs font-medium focus:outline-none focus:border-blue-500" onchange="loadData()">
-            <option value="2025">2025</option>
-            <option value="2026" selected>2026</option>
-          </select>
-        </div>
-      </div>
-    </header>
-
-    <!-- KANVAS PETA & KARTU MELAYANG -->
-    <div class="bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-6 relative mb-4">
-      <div class="map-wrapper loading-fade" id="mapSection">
-        
-        <!-- GAMBAR PETA UTAMA -->
-        <img src="https://lh3.googleusercontent.com/d/1YVLUXNZQxOTjLpkGCNrCaDgGaf9kl_v7" alt="Peta UP3 Parepare">
-
-        <!-- POSISI KARTU STATISTIK -->
-        <div id="card-RAPPANG" class="floating-card" style="top: 10%; left: 5%;"></div>
-        <div id="card-MATTIROTASI" class="floating-card" style="top: 40%; left: 1%;"></div>
-        <div id="card-BARRU" class="floating-card" style="top: 70%; left: 3%;"></div>
-        
-        <div id="card-TANRU TEDONG" class="floating-card" style="top: 1%; right: 30%;"></div>
-        <div id="card-PANGSID" class="floating-card" style="top: 25%; right: 15%;"></div>
-        <div id="card-SOPPENG" class="floating-card" style="top: 50%; right: 20%;"></div>
-        <div id="card-PAJALESANG" class="floating-card" style="top: 75%; right: 25%;"></div>
-
-        <!-- KARTU TOTAL UP3 PAREPARE DI POJOK KANAN BAWAH -->
-        <div id="card-UP3 PAREPARE" class="floating-card" style="top: 1%; right: 1%; width: 250px;"></div>
-
-      </div>
+      <!-- Tombol Logout -->
+      <a class="menu-item logout-item" onclick="handleLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Keluar</span>
+      </a>
     </div>
 
-    <!-- CONTAINER BARU: RINGKASAN % TANPA EM1N, TARGET & PENCAPAIAN -->
-    <div class="bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-4 loading-fade" id="summarySection">
-      <h2 class="text-sm font-bold text-white mb-3 tracking-wide uppercase border-b border-slate-700 pb-2">
-        Rekapitulasi Susut, Target & Pencapaian
-      </h2>
-      <p class="text-xs text-slate-400 pb-4">Target dan Pencapaian hanya untuk Kumulatif</p>
-      <div id="summary-persen-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-        <!-- Akan diisi secara dinamis oleh JavaScript -->
-      </div>
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-content">
+      <iframe id="mainFrame" class="content-frame" src="https://dalsutup3pare-dotcom.github.io/kwhp2tl/"></iframe>
     </div>
 
   </div>
 
-<script>
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyg76R1_mguiVA59M5ZZBh19RJuxkrAUZAoBh5pw37bzlLj4GgZV9xN8_0ccRRLsOc8Yg/exec";
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const mainFrame = document.getElementById('mainFrame');
+    const loginOverlay = document.getElementById('loginOverlay');
+    const dashboardContainer = document.getElementById('dashboardContainer');
+    const errorMsg = document.getElementById('errorMsg');
+    const displayUsername = document.getElementById('displayUsername');
 
-  // Objek penampung cache di sisi browser
-  const memoryCache = {};
+    // URL Web App dari Google Apps Script Anda (Ganti dengan URL milik Anda)
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz0moOroPebuptvj12hjDT_iPsUy5TPVJl58yIuoYFA2VJvGBmX4v9KtykVCipixN2_/exec";
 
-  window.onload = function() {
-    loadData();
-  };
+    // CEK STATUS SAAT HALAMAN DIMUAT / DI-REFRESH
+    window.addEventListener('DOMContentLoaded', () => {
+      const isLogged = sessionStorage.getItem('isLoggedIn');
+      const savedUser = sessionStorage.getItem('username');
 
-  // Fungsi untuk menampilkan / menyembunyikan status loading
-  function toggleLoading(show) {
-    var overlay = document.getElementById('loadingOverlay');
-    var mapSec = document.getElementById('mapSection');
-    var sumSec = document.getElementById('summarySection');
-
-    if (show) {
-      overlay.classList.remove('hidden');
-      mapSec.classList.add('opacity-40');
-      sumSec.classList.add('opacity-40');
-    } else {
-      overlay.classList.add('hidden');
-      mapSec.classList.remove('opacity-40');
-      sumSec.classList.remove('opacity-40');
-    }
-  }
-
-  function loadData() {
-    var tahun = document.getElementById('filterTahun').value;
-    var bulan = document.getElementById('filterBulan').value;
-    var kum = document.getElementById('filterKum').value;
-
-    var cacheKey = `${tahun}_${bulan}_${kum}`;
-
-    // Jika data sudah ada di memori cache browser, render instan tanpa loading lama
-    if (memoryCache[cacheKey]) {
-      console.log("Memuat data dari Cache Browser (Instan)...");
-      renderAll(memoryCache[cacheKey]);
-      return;
-    }
-
-    console.log("Memuat data baru dari Google Sheets...");
-    toggleLoading(true); // Tampilkan animasi loading saat melakukan fetch
-
-    var url = `${WEB_APP_URL}?tahun=${tahun}&bulan=${encodeURIComponent(bulan)}&kum=${encodeURIComponent(kum)}`;
-
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        memoryCache[cacheKey] = data;
-        renderAll(data);
-        toggleLoading(false); // Sembunyikan animasi loading setelah selesai
-      })
-      .catch(error => {
-        console.error('Terjadi kesalahan saat mengambil data:', error);
-        toggleLoading(false); // Sembunyikan loading walau terjadi error
-      });
-  }
-
-  function renderAll(data) {
-    renderFloatingCards(data);
-    renderSummaryPersen(data);
-  }
-
-  function renderFloatingCards(data) {
-    var unitList = ['RAPPANG', 'MATTIROTASI', 'BARRU', 'TANRU TEDONG', 'PANGSID', 'SOPPENG', 'PAJALESANG', 'UP3 PAREPARE'];
-    
-    unitList.forEach(function(unit) {
-      var container = document.getElementById('card-' + unit);
-      if (container) {
-        container.innerHTML = '';
+      if (isLogged === 'true' && savedUser) {
+        displayUsername.innerText = savedUser;
+        loginOverlay.style.display = 'none';
+        dashboardContainer.classList.add('active');
       }
     });
 
-    if (!data || data.length === 0) return;
+    // Fitur Handle Login Terhubung ke Spreadsheet via Apps Script
+    async function handleLogin(event) {
+      event.preventDefault();
+      const inputUser = document.getElementById('username').value;
+      const inputPass = document.getElementById('password').value;
+      const loginBtn = document.querySelector('.login-btn');
 
-    var allowedKet = [
-      "A. S1AP SALUR DIST",
-      "B. KWH JUAL TANPA EM1N",
-      "C. SUSUT TANPA EM1N",
-      "D. % TANPA EM1N"
-    ];
+      loginBtn.innerText = "Memeriksa...";
+      loginBtn.disabled = true;
 
-    var filteredData = data.filter(function(item) {
-      return allowedKet.includes(item.ket.trim());
-    });
+      try {
+        const response = await fetch(WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify({ username: inputUser, password: inputPass })
+        });
 
-    var groupedByUnit = {};
-    filteredData.forEach(function(item) {
-      if (!groupedByUnit[item.unit]) {
-        groupedByUnit[item.unit] = [];
+        const result = await response.json();
+
+        if (result.success) {
+          // SIMPAN STATUS & USERNAME KE SESSION BROWSER
+          sessionStorage.setItem('isLoggedIn', 'true');
+          sessionStorage.setItem('username', inputUser);
+
+          // Tampilkan nama user di sidebar
+          displayUsername.innerText = inputUser;
+
+          // Sembunyikan Landing Page Login & Tampilkan Dashboard
+          loginOverlay.style.opacity = '0';
+          setTimeout(() => {
+            loginOverlay.style.display = 'none';
+            dashboardContainer.classList.add('active');
+          }, 400);
+          errorMsg.style.display = 'none';
+        } else {
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        console.error("Gagal terhubung ke server:", err);
+        alert("Terjadi kesalahan koneksi saat memeriksa data login.");
+      } finally {
+        loginBtn.innerText = "Masuk";
+        loginBtn.disabled = false;
       }
-      groupedByUnit[item.unit].push(item);
-    });
-
-    for (var unit in groupedByUnit) {
-      var container = document.getElementById('card-' + unit);
-      if (container) {
-        container.innerHTML = createCardHTML(unit, groupedByUnit[unit]);
-      }
-    }
-  }
-
-  function createCardHTML(unit, rows) {
-    var isTotal = (unit === 'UP3 PAREPARE');
-    var headerClass = isTotal ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-blue-600 text-white font-bold';
-    var containerClass = isTotal ? 'bg-slate-900 text-slate-100 border-2 border-amber-500 shadow-2xl' : 'bg-slate-900 text-slate-100 border border-slate-700 shadow-lg';
-
-    var html = `<div class="${containerClass} rounded overflow-hidden">`;
-    html += `<div class="${headerClass} px-2 py-1 uppercase flex justify-between tracking-wide text-xs"><span>${unit}</span><span>▲</span></div>`;
-    html += `<div class="p-1.5 space-y-0.5">`;
-
-    rows.forEach(function(row) {
-      var formattedNilai = Number(row.nilai).toLocaleString('id-ID');
-      html += `<div class="flex justify-between border-b border-slate-800 pb-0.5 text-[11px]">
-                 <span class="truncate w-32 text-slate-300" title="${row.ket}">${row.ket}</span>
-                 <span class="font-semibold text-white">${formattedNilai}</span>
-               </div>`;
-    });
-
-    html += `</div></div>`;
-    return html;
-  }
-
-  // Fungsi untuk mendapatkan warna berdasarkan conditional formatting nilai % TANPA EM1N
-  function getConditionalColor(val) {
-    var num = parseFloat(val);
-    if (isNaN(num)) return 'bg-slate-700 text-white';
-
-    if (num >= 13) {
-      return 'bg-black text-white border border-slate-600'; // Hitam
-    } else if (num >= 10) {
-      return 'bg-red-600 text-white'; // Merah
-    } else if (num >= 7) {
-      return 'bg-emerald-600 text-white'; // Hijau
-    } else if (num >= 5) {
-      return 'bg-amber-500 text-slate-950 font-bold'; // Gold
-    } else if (num >= 0) {
-      return 'bg-slate-200 text-slate-950 font-semibold'; // Platinum
-    } else {
-      return 'bg-slate-700 text-white';
-    }
-  }
-
-  // Fungsi untuk merender container rekapitulasi persentase, target, dan pencapaian
-  function renderSummaryPersen(data) {
-    var summaryContainer = document.getElementById('summary-persen-container');
-    summaryContainer.innerHTML = '';
-
-    if (!data || data.length === 0) {
-      summaryContainer.innerHTML = '<p class="text-xs text-slate-400 col-span-full">Tidak ada data.</p>';
-      return;
     }
 
-    // Filter khusus baris "D. % TANPA EM1N"
-    var persenData = data.filter(function(item) {
-      return item.ket.trim() === "D. % TANPA EM1N";
-    });
+    // Fitur Handle Logout
+    function handleLogout() {
+      // HAPUS SESSION LOGIN & USERNAME
+      sessionStorage.removeItem('isLoggedIn');
+      sessionStorage.removeItem('username');
 
-    if (persenData.length === 0) {
-      summaryContainer.innerHTML = '<p class="text-xs text-slate-400 col-span-full">Data persentase tidak ditemukan.</p>';
-      return;
+      dashboardContainer.classList.remove('active');
+      loginOverlay.style.display = 'flex';
+      setTimeout(() => {
+        loginOverlay.style.opacity = '1';
+      }, 50);
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
     }
 
-    persenData.forEach(function(row) {
-      var aktual = parseFloat(row.nilai) || 0;
-      var target = parseFloat(row.target) || 0;
-      
-      var persenPencapaian = 0;
-      if (aktual > 0) {
-        persenPencapaian = (target / aktual) * 100;
-      } else if (target === 0) {
-        persenPencapaian = 100;
-      }
-
-      var colorClass = getConditionalColor(aktual);
-      var formattedAktual = aktual.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      var formattedTarget = target.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      var formattedPencapaian = persenPencapaian.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-
-      var cardHtml = `
-        <div class="bg-slate-900 border border-slate-700 rounded-lg p-2.5 flex flex-col justify-between shadow">
-          <span class="text-[11px] font-bold text-slate-300 truncate uppercase mb-2 border-b border-slate-800 pb-1">${row.unit}</span>
-          
-          <div class="space-y-1.5 my-1 text-[11px]">
-            <div class="flex justify-between text-slate-400">
-              <span>Target:</span>
-              <span class="font-medium text-white">${formattedTarget}</span>
-            </div>
-            <div class="flex justify-between text-slate-400">
-              <span>Pencapaian:</span>
-              <span class="font-semibold text-blue-400">${formattedPencapaian}%</span>
-            </div>
-          </div>
-
-          <div class="mt-1">
-            <span class="text-[10px] text-slate-400 block mb-0.5">Nilai Susut:</span>
-            <div class="${colorClass} rounded p-1.5 text-center text-xs font-bold transition-colors duration-200">
-              ${formattedAktual}
-            </div>
-          </div>
-        </div>
-      `;
-      summaryContainer.innerHTML += cardHtml;
+    // Fitur Toggle Open/Close Sidebar
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
     });
-  }
-</script>
+
+    // Fungsi mengganti URL iframe
+    function loadPage(url, element) {
+      mainFrame.src = url;
+      const items = document.querySelectorAll('.menu-item');
+      items.forEach(item => item.classList.remove('active'));
+      element.classList.add('active');
+    }
+  </script>
+
 </body>
 </html>
